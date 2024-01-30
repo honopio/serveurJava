@@ -8,7 +8,7 @@ import java.util.Scanner;
 public class AfficheRequetesHttp {
 
 	public static void main(String[] args) {
-
+		// TEEEEEESSSSSTTTTT
 		if (args.length != 2) {
 			System.err.println("Usage: java " + AfficheRequetesHttp.class.getName() + "portnumber directory");
 			//il faut pas pouvoir remonter plus loin que le dir du serveur. pb de sécu
