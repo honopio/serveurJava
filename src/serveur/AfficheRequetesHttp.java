@@ -81,8 +81,11 @@ public class AfficheRequetesHttp {
 							pw.flush();// il faut vider le buffer pour que le contenu soit envoyé. envoie à OutputStream os je crois
 		
 							Files.copy(fileToSend, os); // ici pas besoin de vider le buffer os n'est pas buffeurisé
-						// SINON
+						// TODO: SINON
 							// envoyer erreur 404
+						// FIN SI
+						// TODO: fermer la connexion
+					// FIN TANT QUE
 					
 				}
 
