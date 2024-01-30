@@ -6,6 +6,8 @@ import java.nio.file.*;
 import java.util.Scanner;
 
 public class AfficheRequetesHttp {
+	
+	// TODO: multithreader le serveur pour que chaque requête soit traitée dans un thread différent
 
 	public static void main(String[] args) {
 		if (args.length != 2) {
