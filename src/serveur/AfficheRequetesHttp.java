@@ -55,6 +55,11 @@ public class AfficheRequetesHttp {
 					OutputStream os = c.getOutputStream();
 					
 					// TODO: SI (méthode get) ALORS
+					/*ouvrir un nv scanner juste pour lire le premier mot ? la String line contient la dernière ligne du header, pas la premiere
+					 * -> Scanner sca = new Scanner(c.getInputStream()); if ("GET".equals(scanner.next())) {}
+					 * sinon, stocker la premiere ligne (dans une String firstLine) et la print avant le while, puis print le reste du header dans le while
+					 * -> if (firstLine.substring(0, 3).equals("GET")) {}
+					 */
 					
 						// TODO: récupérer le chemin dans la première ligne
 					
