@@ -9,6 +9,10 @@ public class AfficheRequetesHttp {
 	
 	// TODO: multithreader le serveur pour que chaque requête soit traitée dans un thread différent
 
+	/* ServerSocket s sert a ecouter les connexions entrantes. Socket c : la connexion avec un client particulier
+	 * Pour multithreader, il faut surement (thread.start()) à chaque fois que (Socket c = s.accept()) 
+	 * pour fermer la connexion : fermer le socket (c.close()) et tuer le thread. see : https://stackoverflow.com/questions/44989876/simple-java-multi-threaded-socket-application
+	 */
 	public static void main(String[] args) {
 		if (args.length != 2) {
 			System.err.println("Usage: java " + AfficheRequetesHttp.class.getName() + "portnumber directory");
@@ -87,7 +91,7 @@ public class AfficheRequetesHttp {
 						// TODO: SINON
 							// envoyer erreur 404
 						// FIN SI
-						// TODO: fermer la connexion
+						// TODO: fermer la connexion. la classe ServerSocket a une methode close(). c.close(); */
 					// FIN TANT QUE
 					
 				}
