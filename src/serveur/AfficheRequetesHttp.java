@@ -68,7 +68,7 @@ public class AfficheRequetesHttp {
 					OutputStream os = c.getOutputStream();
 					
 					// SI (méthode get) ALORS
-					if (firstline.substring(0, 3) == "GET") {
+					if (firstline.substring(0, 3).equals("GET")) {
 					
 						// récupérer le chemin dans la première ligne
 						Path chemin = Paths.get(firstline.split(" ")[1]);
