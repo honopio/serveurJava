@@ -108,6 +108,10 @@ public class AfficheRequetesHttp {
 						else {
 						// TODO: SINON
 							// envoyer erreur 404
+							Writer w = new OutputStreamWriter(os);
+							PrintWriter pw = new PrintWriter(w);
+							pw.println("HTTP/1.1 404 DEAD");
+							pw.flush(); // il faut vider le buffer pour que le contenu soit envoyé.
 						}
 						// FIN SI
 					}
