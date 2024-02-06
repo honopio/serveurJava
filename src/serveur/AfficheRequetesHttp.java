@@ -9,11 +9,27 @@ public class AfficheRequetesHttp {
 	
 	// TODO: multithreader le serveur pour que chaque requête soit traitée dans un thread différent
 
+	/* ServerSocket s sert a ecouter les connexions entrantes. Socket c : la connexion avec un client particulier
+	 * Pour multithreader, il faut surement (thread.start()) à chaque fois que (Socket c = s.accept()) 
+	 * pour fermer la connexion : fermer le socket (c.close()) et tuer le thread. see : https://stackoverflow.com/questions/44989876/simple-java-multi-threaded-socket-application
+	 */
 	public static void main(String[] args) {
 		if (args.length != 2) {
 			System.err.println("Usage: java " + AfficheRequetesHttp.class.getName() + "portnumber directory");
-			//il faut pas pouvoir remonter plus loin que le dir du serveur. pb de sécu
 			System.exit(1);
+		}
+		//arg[1] doit etre un directory 
+		Path dir = Paths.get(args[1]);
+		//Path serverDir = // chemin/vers/le/projet
+		if (!(Files.isDirectory(dir))) {
+			System.err.println(dir +" isn't a directory");
+			System.exit(2);
+		}
+		//dir doit pas remonter plus loin que le dir du serveur
+		Path ici = Paths.get("").toAbsolutePath();
+		if (!(dir.toAbsolutePath().startsWith(ici.toAbsolutePath()))) {
+			System.err.println(dir + " isn't inside the server directory");
+			System.exit(3);
 		}
 
 		int portNumber = 0;
@@ -25,7 +41,7 @@ public class AfficheRequetesHttp {
 		} catch (NumberFormatException e) {
 			System.err.println(args[0] + " is not an integer");
 			System.err.println("Usage: java " + AfficheRequetesHttp.class.getName() + "portnumber directory");
-			System.exit(2);
+			System.exit(4);
 		}
 		// écouter sur port portNumber
 		try (ServerSocket s = new ServerSocket(portNumber);) {
@@ -51,6 +67,11 @@ public class AfficheRequetesHttp {
 					OutputStream os = c.getOutputStream();
 					
 					// TODO: SI (méthode get) ALORS
+					/*ouvrir un nv scanner juste pour lire le premier mot ? la String line contient la dernière ligne du header, pas la premiere
+					 * -> Scanner sca = new Scanner(c.getInputStream()); if ("GET".equals(scanner.next())) {}
+					 * sinon, stocker la premiere ligne (dans une String firstLine) et la print avant le while, puis print le reste du header dans le while
+					 * -> if (firstLine.substring(0, 3).equals("GET")) {}
+					 */
 					
 						// TODO: récupérer le chemin dans la première ligne
 					
@@ -75,8 +96,8 @@ public class AfficheRequetesHttp {
 							Path fileToSend = Paths.get("image.png");
 							String mimeType = Files.probeContentType(fileToSend);
 							// Infos sur types MIME = https://developer.mozilla.org/fr/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types
-							Writer w = new OutputStreamWriter(os);
-							PrintWriter pw = new PrintWriter(w);
+							Writer w2 = new OutputStreamWriter(os);
+							PrintWriter pw2 = new PrintWriter(w);
 							pw.println("HTTP/1.1 200 OK");
 							pw.println("Content-Type: " + mimeType);
 							pw.println();// ligne vide pour signaler la fin des entêtes
@@ -87,7 +108,7 @@ public class AfficheRequetesHttp {
 						// TODO: SINON
 							// envoyer erreur 404
 						// FIN SI
-						// TODO: fermer la connexion
+						// TODO: fermer la connexion. la classe ServerSocket a une methode close(). c.close(); */
 					// FIN TANT QUE
 					
 				}
