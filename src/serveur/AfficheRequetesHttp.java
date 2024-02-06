@@ -16,8 +16,20 @@ public class AfficheRequetesHttp {
 	public static void main(String[] args) {
 		if (args.length != 2) {
 			System.err.println("Usage: java " + AfficheRequetesHttp.class.getName() + "portnumber directory");
-			//il faut pas pouvoir remonter plus loin que le dir du serveur. pb de sécu
 			System.exit(1);
+		}
+		//arg[1] doit etre un directory 
+		Path dir = Paths.get(args[1]);
+		Path serverDir = // chemin/vers/le/projet
+		if (!(Files.isDirectory(dir))) {
+			System.err.println(dir +" isn't a directory");
+			System.exit(2);
+		}
+		//dir doit pas remonter plus loin que le dir du serveur
+		Path ici = Paths.get("").toAbsolutePath();
+		if (!(dir.toAbsolutePath().startsWith(ici.toAbsolutePath()))) {
+			System.err.println(dir + " isn't inside the server directory")
+			System.exit(3);
 		}
 
 		int portNumber = 0;
@@ -29,7 +41,7 @@ public class AfficheRequetesHttp {
 		} catch (NumberFormatException e) {
 			System.err.println(args[0] + " is not an integer");
 			System.err.println("Usage: java " + AfficheRequetesHttp.class.getName() + "portnumber directory");
-			System.exit(2);
+			System.exit(4);
 		}
 		// écouter sur port portNumber
 		try (ServerSocket s = new ServerSocket(portNumber);) {
