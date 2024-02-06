@@ -1,8 +1,10 @@
 package serveur;
 
 import java.io.*;
+
 import java.net.*;
 import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Scanner;
 
 public class AfficheRequetesHttp {
@@ -71,39 +73,45 @@ public class AfficheRequetesHttp {
 					if (firstline.substring(0, 3).equals("GET")) {
 					
 						// récupérer le chemin dans la première ligne
-						Path chemin = Paths.get(firstline.split(" ")[1]);
+						String requestedFile = firstline.split(" ")[1] ;
+						//Path chemin = Paths.get(firstline.split(" ")[1]);
 					
 						// TODO: SI (CHEMIN est un répertoire) ALORS
-						if (Files.isDirectory(chemin)) {
+						if (Files.isDirectory(Paths.get(requestedFile))) {
+							
+							//dir à partir duquel le serveur envoie des files, combiné au fichier de la requête
+							Path chemin = Paths.get(args[1], requestedFile); 
+							
+							
 							// construire réponse affichant le contenu du répertoire
-							// exemple d'envoi d'un contenu html
+							
 							Writer w = new OutputStreamWriter(os);
 							PrintWriter pw = new PrintWriter(w);
 							pw.println("HTTP/1.1 200 OK");
 							pw.println("Content-Type: text/html");
 							pw.println();// ligne vide pour signaler la fin des entêtes 
 							
-							//CORPS DE LA REQUETE : (sera le code source de la ressources envoyée)
+							//CORPS DE LA REQUETE : (sera le code source de la ressource envoyee)
 							pw.println("<!DOCTYPE html PUBLIC \"-//IETF//DTD HTML 2.0//EN\">");
 							pw.println("<html><body>");
-							pw.println("<h1>Index of /~davidjer/xml/2014-2015</h1>");
-							pw.println("<table>");
-							pw.println("<tr><th valign=\"top\"></th><th><a>Name</a></th><th><a>Last modified</a></th><th><a>Size</a></th><th><a>Description</a></th></tr>");
+							pw.println("<h1>Index of " + requestedFile + "</h1>");							pw.println("<table>");
+							pw.println("<tr><th valign=\"top\"></th><th><a>Name</a></th><th><a>Last modified</a></th><th><a>Size</a></th></tr>");
 							
 							//afficher tous les fichiers du dir
 							try (DirectoryStream<Path> stream = Files.newDirectoryStream(chemin)) {
 							    for (Path file: stream) {
-							    	pw.println("<tr><td valign=\"top\"></td><td><a href=\"" + file.getFileName() + "\">" + file.getFileName() + "</a></td></tr>");
-							    	
-				//<tr><td valign="top"></td><td><a href="/~davidjer/">Parent Directory</a></td><td>&nbsp;</td><td align="right">  - </td><td>&nbsp;</td></tr>			    	
+							    	//classe qui permet d'accéder à des méthodes qui renvoient des attributs de files
+							    	BasicFileAttributes attrs = Files.readAttributes(file, BasicFileAttributes.class);
+							    	//Files.readAttributes().getLastModifiedTime(requestedFile);
+							    	pw.println("<tr><td valign=\"top\"></td><td><a href=\"" + file.getFileName() + "\">" + file.getFileName() 
+							    	+ "</a><td align=\"right\">"+  attrs.lastModifiedTime().toString() +"</td><td align=\"right\">" + attrs.size() + " bytes" + "</td></td></tr>");
 							    }
-							    pw.println("</table>");    
-							
-							
+							    
+							pw.println("</table>");    
 							pw.println("</body></html>");
 							pw.flush(); // il faut vider le buffer pour que le contenu soit envoyé.
 						}
-						}
+						}/*
 						// TODO: SINON SI (CHEMIN est un fichier)
 						else if (Files.isRegularFile(chemin)) {
 							// construire réponse avec le contenu du fichier
@@ -119,7 +127,7 @@ public class AfficheRequetesHttp {
 		
 							// Copier le contenu d'un ficher vers un flux en sortie
 							Files.copy(chemin, os); // ici pas besoin de vider le buffer os n'est pas buffeurisé
-						}
+						}*/
 						else {
 						// TODO: SINON
 							// envoyer erreur 404
