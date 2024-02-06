@@ -74,16 +74,16 @@ public class AfficheRequetesHttp {
 					
 						// récupérer le chemin dans la première ligne
 						String requestedFile = firstline.split(" ")[1] ;
-						//Path chemin = Paths.get(firstline.split(" ")[1]);
-					
+						/*PB DE requestedFile : ça renvoie toujours "/",
+						 * même si args[1] (le directory qu'on veut) est pas "/"
+						 */
 						// TODO: SI (CHEMIN est un répertoire) ALORS
 						if (Files.isDirectory(Paths.get(requestedFile))) {
 							
 							//dir à partir duquel le serveur envoie des files, combiné au fichier de la requête
 							Path chemin = Paths.get(args[1], requestedFile); 
 							
-							
-							// construire réponse affichant le contenu du répertoire
+							// reponse affichant le contenu du répertoire
 							
 							Writer w = new OutputStreamWriter(os);
 							PrintWriter pw = new PrintWriter(w);
@@ -96,13 +96,21 @@ public class AfficheRequetesHttp {
 							pw.println("<html><body>");
 							pw.println("<h1>Index of " + requestedFile + "</h1>");							pw.println("<table>");
 							pw.println("<tr><th valign=\"top\"></th><th><a>Name</a></th><th><a>Last modified</a></th><th><a>Size</a></th></tr>");
-							
+							//obtenir le path du directory parent
+						    Path parent = chemin.getParent();
+
+							pw.println("<tr><td valign=\"top\"></td><td><a href=\""+ parent + "\">Parent Directory</a></td>");
+						    pw.println("<td></td>"); // No last modified time for the parent directory
+						    pw.println("<td></td>"); // No size for the parent directory
+						    pw.println("</tr>");
+						    
 							//afficher tous les fichiers du dir
 							try (DirectoryStream<Path> stream = Files.newDirectoryStream(chemin)) {
+								
 							    for (Path file: stream) {
 							    	//classe qui permet d'accéder à des méthodes qui renvoient des attributs de files
 							    	BasicFileAttributes attrs = Files.readAttributes(file, BasicFileAttributes.class);
-							    	//Files.readAttributes().getLastModifiedTime(requestedFile);
+							    	
 							    	pw.println("<tr><td valign=\"top\"></td><td><a href=\"" + file.getFileName() + "\">" + file.getFileName() 
 							    	+ "</a><td align=\"right\">"+  attrs.lastModifiedTime().toString() +"</td><td align=\"right\">" + attrs.size() + " bytes" + "</td></td></tr>");
 							    }
@@ -110,7 +118,7 @@ public class AfficheRequetesHttp {
 							pw.println("</table>");    
 							pw.println("</body></html>");
 							pw.flush(); // il faut vider le buffer pour que le contenu soit envoyé.
-						}
+							}
 						}/*
 						// TODO: SINON SI (CHEMIN est un fichier)
 						else if (Files.isRegularFile(chemin)) {
