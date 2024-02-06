@@ -20,14 +20,12 @@ public class AfficheRequetesHttp {
 		}
 		//arg[1] doit etre un directory 
 		Path dir = Paths.get(args[1]);
-		//Path serverDir = // chemin/vers/le/projet
 		if (!(Files.isDirectory(dir))) {
 			System.err.println(dir +" isn't a directory");
 			System.exit(2);
 		}
 		//dir doit pas remonter plus loin que le dir du serveur
-		Path ici = Paths.get("").toAbsolutePath();
-		if (!(dir.toAbsolutePath().startsWith(ici.toAbsolutePath()))) {
+		if (!(dir.toAbsolutePath().startsWith(Paths.get("").toAbsolutePath()))) {
 			System.err.println(dir + " isn't inside the server directory");
 			System.exit(3);
 		}
