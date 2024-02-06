@@ -82,12 +82,27 @@ public class AfficheRequetesHttp {
 							pw.println("HTTP/1.1 200 OK");
 							pw.println("Content-Type: text/html");
 							pw.println();// ligne vide pour signaler la fin des entêtes 
+							
 							//CORPS DE LA REQUETE : (sera le code source de la ressources envoyée)
 							pw.println("<!DOCTYPE html PUBLIC \"-//IETF//DTD HTML 2.0//EN\">");
 							pw.println("<html><body>");
-							pw.println("<h1>Hello DCISS !</h1>");
+							pw.println("<h1>Index of /~davidjer/xml/2014-2015</h1>");
+							pw.println("<table>");
+							pw.println("<tr><th valign=\"top\"></th><th><a>Name</a></th><th><a>Last modified</a></th><th><a>Size</a></th><th><a>Description</a></th></tr>");
+							
+							//afficher tous les fichiers du dir
+							try (DirectoryStream<Path> stream = Files.newDirectoryStream(chemin)) {
+							    for (Path file: stream) {
+							    	pw.println("<tr><td valign=\"top\"></td><td><a href=\"" + file.getFileName() + "\">" + file.getFileName() + "</a></td></tr>");
+							    	
+				//<tr><td valign="top"></td><td><a href="/~davidjer/">Parent Directory</a></td><td>&nbsp;</td><td align="right">  - </td><td>&nbsp;</td></tr>			    	
+							    }
+							    pw.println("</table>");    
+							
+							
 							pw.println("</body></html>");
 							pw.flush(); // il faut vider le buffer pour que le contenu soit envoyé.
+						}
 						}
 						// TODO: SINON SI (CHEMIN est un fichier)
 						else if (Files.isRegularFile(chemin)) {
