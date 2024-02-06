@@ -20,7 +20,7 @@ public class AfficheRequetesHttp {
 		}
 		//arg[1] doit etre un directory 
 		Path dir = Paths.get(args[1]);
-		Path serverDir = // chemin/vers/le/projet
+		//Path serverDir = // chemin/vers/le/projet
 		if (!(Files.isDirectory(dir))) {
 			System.err.println(dir +" isn't a directory");
 			System.exit(2);
@@ -28,7 +28,7 @@ public class AfficheRequetesHttp {
 		//dir doit pas remonter plus loin que le dir du serveur
 		Path ici = Paths.get("").toAbsolutePath();
 		if (!(dir.toAbsolutePath().startsWith(ici.toAbsolutePath()))) {
-			System.err.println(dir + " isn't inside the server directory")
+			System.err.println(dir + " isn't inside the server directory");
 			System.exit(3);
 		}
 
@@ -96,8 +96,8 @@ public class AfficheRequetesHttp {
 							Path fileToSend = Paths.get("image.png");
 							String mimeType = Files.probeContentType(fileToSend);
 							// Infos sur types MIME = https://developer.mozilla.org/fr/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types
-							Writer w = new OutputStreamWriter(os);
-							PrintWriter pw = new PrintWriter(w);
+							Writer w2 = new OutputStreamWriter(os);
+							PrintWriter pw2 = new PrintWriter(w);
 							pw.println("HTTP/1.1 200 OK");
 							pw.println("Content-Type: " + mimeType);
 							pw.println();// ligne vide pour signaler la fin des entêtes
