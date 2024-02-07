@@ -73,7 +73,7 @@ public class AfficheRequetesHttp {
 					if (firstline.substring(0, 3).equals("GET")) {
 					
 						// récupérer le chemin dans la première ligne
-						String requestedFile = Paths.get(firstline.split(" ")[1]).toString();
+						String requestedFile = Paths.get(args[1]).resolve(Paths.get(firstline.split(" ")[1])).normalize().toAbsolutePath().toString();
 						System.out.println("REQUESTED FILE : "+ requestedFile);// quand je veux "GET /bin", ça print \bin.
 						//si je mets toAbsolutePath, donne C:\bin au lieu de donner l'adresse à partir du serveur local
 						
@@ -114,7 +114,8 @@ public class AfficheRequetesHttp {
 							pw.println("<tr><th valign=\"top\"></th><th><a>Name</a></th><th><a>Last modified</a></th><th><a>Size</a></th></tr>");
 							
 							//obtenir le path du directory parent
-						    Path parent = chemin.toAbsolutePath().getParent();
+						    Path parent = chemin.getParent();
+						    System.out.println("PARENT DIRECTORY : "+ parent);
 
 							pw.println("<tr><td valign=\"top\"></td><td><a href=\""+ parent + "\">Parent Directory</a></td>");
 						    pw.println("</tr>");
