@@ -73,15 +73,28 @@ public class AfficheRequetesHttp {
 					if (firstline.substring(0, 3).equals("GET")) {
 					
 						// récupérer le chemin dans la première ligne
-						String requestedFile = firstline.split(" ")[1] ;
-						/*PB DE requestedFile : ça renvoie toujours "/",
-						 * même si args[1] (le directory qu'on veut) est pas "/"
+						String requestedFile = Paths.get(firstline.split(" ")[1]).toString();
+						System.out.println("REQUESTED FILE : "+ requestedFile);// quand je veux "GET /bin", ça print \bin.
+						//si je mets toAbsolutePath, donne C:\bin au lieu de donner l'adresse à partir du serveur local
+						
+						
+						Path cheminServeur = Paths.get(args[1]).toAbsolutePath(); 
+						System.out.println("CHEMIN SERVEUR : "+cheminServeur);
+						
+						Path requestedFileConcat = dir.resolve(requestedFile).normalize();
+						String requestedFilePath = requestedFileConcat.toString();
+						System.out.println("REQUESTEDFILEPATH : " + requestedFilePath);
+
+						/* requestedFile = la ressource demandée dans le navigateur (par ex, "/bin")
+						 * par contre, ce qui est chargé ds le browser est le contenu de args[1], pas requestedFile
+						 * quand on demande "http://localhost:1080/bin", la requête est "GET /bin HTTP/1.1" 
+						 * MAIS on rentre PAS DANS LE IF(directory) 
 						 */
+				
 						// TODO: SI (CHEMIN est un répertoire) ALORS
 						if (Files.isDirectory(Paths.get(requestedFile))) {
-							
 							//dir à partir duquel le serveur envoie des files, combiné au fichier de la requête
-							Path chemin = Paths.get(args[1], requestedFile); 
+							Path chemin = Paths.get(args[1], requestedFile).toAbsolutePath(); 
 							
 							// reponse affichant le contenu du répertoire
 							
@@ -94,14 +107,14 @@ public class AfficheRequetesHttp {
 							//CORPS DE LA REQUETE : (sera le code source de la ressource envoyee)
 							pw.println("<!DOCTYPE html PUBLIC \"-//IETF//DTD HTML 2.0//EN\">");
 							pw.println("<html><body>");
-							pw.println("<h1>Index of " + requestedFile + "</h1>");							pw.println("<table>");
+							pw.println("<h1>Index of " + requestedFile + "</h1>");
+							pw.println("<table>");
 							pw.println("<tr><th valign=\"top\"></th><th><a>Name</a></th><th><a>Last modified</a></th><th><a>Size</a></th></tr>");
+							
 							//obtenir le path du directory parent
-						    Path parent = chemin.getParent();
+						    Path parent = chemin.toAbsolutePath().getParent();
 
 							pw.println("<tr><td valign=\"top\"></td><td><a href=\""+ parent + "\">Parent Directory</a></td>");
-						    pw.println("<td></td>"); // No last modified time for the parent directory
-						    pw.println("<td></td>"); // No size for the parent directory
 						    pw.println("</tr>");
 						    
 							//afficher tous les fichiers du dir
