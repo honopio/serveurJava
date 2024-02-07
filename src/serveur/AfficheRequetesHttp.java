@@ -11,10 +11,10 @@ public class AfficheRequetesHttp {
 	
 	// TODO: multithreader le serveur pour que chaque requête soit traitée dans un thread différent
 
-	/* ServerSocket s sert a ecouter les connexions entrantes. Socket c : la connexion avec un client particulier
-	 * Pour multithreader, il faut surement (thread.start()) à chaque fois que (Socket c = s.accept()) 
-	 * pour fermer la connexion : fermer le socket (c.close()) et tuer le thread. see : https://stackoverflow.com/questions/44989876/simple-java-multi-threaded-socket-application
-	 */
+	 /* Pour multithreader, il faut surement (thread.start()) à chaque fois que (Socket c = s.accept()) 
+	  * pour fermer la connexion : fermer le socket (c.close()) et tuer le thread. see : https://stackoverflow.com/questions/44989876/simple-java-multi-threaded-socket-application
+	  */
+	
 	public static void main(String[] args) throws NoSuchFileException {
 		if (args.length != 2) {
 			System.err.println("Usage: java " + AfficheRequetesHttp.class.getName() + "portnumber directory");
@@ -55,6 +55,7 @@ public class AfficheRequetesHttp {
 					// stocker la premiere ligne pour type de requête
 					String firstline = sc.nextLine();
 					System.out.println(firstline);
+					
 					// lire la première ligne sur flux d'entrée
 					while (sc.hasNextLine()) {
 						String line = sc.nextLine();
@@ -75,22 +76,14 @@ public class AfficheRequetesHttp {
 						// récupérer le chemin dans la première ligne
 						String requestedFile = (firstline.split(" ")[1]);
 						Path requestedFilePath = Paths.get(requestedFile);
-						System.out.println("REQUESTED FILE : "+ requestedFile);// quand je veux "GET /bin", ça print \bin.
+						System.out.println("\nREQUESTED FILE : "+ requestedFile);
 						
-						
+						/* TRACE */
 						Path cheminServeur = Paths.get(args[1]).toAbsolutePath().normalize(); 
-						System.out.println("CHEMIN SERVEUR : "+cheminServeur); //pour l'instant c'est args[0] == "."
-						// prints "CHEMIN SERVEUR : C:\Users\honopio\git\serveurJava\."
-						
+						System.out.println("CHEMIN SERVEUR : "+cheminServeur); 
+						/* TRACE du chemin absolu de la requete GET */
 						String cheminComplet = cheminServeur.resolve(requestedFile).toString();
 						System.out.println("CHEMIN COMPLET : " + cheminComplet);
-						// prints "CHEMIN COMPLET : C:\bin" instead of C:\Users\honopio\git\serveurJava\bin
-
-						/* requestedFile = la ressource demandée dans le navigateur (par ex, "/bin")
-						 * par contre, ce qui est chargé ds le browser est le contenu de args[1], pas requestedFile
-						 * quand on demande "http://localhost:1080/bin", la requête est "GET /bin HTTP/1.1" 
-						 * MAIS on rentre PAS DANS LE IF(directory) 
-						 */
 						
 						
 						// TODO: SI (CHEMIN est un répertoire) ALORS
@@ -112,18 +105,19 @@ public class AfficheRequetesHttp {
 							pw.println("<tr><th valign=\"top\"></th><th><a>Name</a></th><th><a>Last modified</a></th><th><a>Size</a></th></tr>");
 							
 							//obtenir le path du directory parent
-						    Path parent = Paths.get(requestedFile).getParent(); 
+						    Path parent = requestedFilePath.getParent();
+						    Path trueParent = parent == null ? requestedFilePath : parent ; //permet de pas essayer de remonter en amont de root
 						    
-						    System.out.println("PARENT DIRECTORY : "+ parent);
+						    /*TRACE*/System.out.println("PARENT DIRECTORY : "+ parent + "\n");
 
-							pw.println("<tr><td valign=\"top\"></td><td><a href=\""+ parent + "\">Parent Directory</a></td>");
+							pw.println("<tr><td valign=\"top\"></td><td><a href=\""+ trueParent + "\">Parent Directory</a></td>");
 						    pw.println("</tr>");
 						    
 							//afficher tous les fichiers du dir
 							try (DirectoryStream<Path> stream = Files.newDirectoryStream(requestedFilePath)) {
 								
 							    for (Path file: stream) {
-							    	//classe qui permet d'accéder à des méthodes qui renvoient des attributs de files
+							    	//classe avec des methodes qui permettent d'accéder à des attributs de files
 							    	BasicFileAttributes attrs = Files.readAttributes(file, BasicFileAttributes.class);
 							    	
 							    	pw.println("<tr><td valign=\"top\"></td><td><a href=\"" + requestedFile.substring(1) + "/" + file.getFileName() + "\">" + file.getFileName() 
@@ -170,7 +164,7 @@ public class AfficheRequetesHttp {
 		} catch (IOException e) {
 			System.err.println("IO error: ");
 			e.printStackTrace();
-			System.exit(10);
+			
 		}
 
 	}
