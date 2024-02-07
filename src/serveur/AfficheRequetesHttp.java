@@ -79,11 +79,12 @@ public class AfficheRequetesHttp {
 						
 						
 						Path cheminServeur = Paths.get(args[1]).toAbsolutePath(); 
-						System.out.println("CHEMIN SERVEUR : "+cheminServeur);
+						System.out.println("CHEMIN SERVEUR : "+cheminServeur); //pour l'instant c'est args[0] == "."
+						// prints "CHEMIN SERVEUR : C:\Users\honopio\git\serveurJava\."
 						
-						Path requestedFileConcat = dir.resolve(requestedFile).normalize();
-						String requestedFilePath = requestedFileConcat.toString();
-						System.out.println("REQUESTEDFILEPATH : " + requestedFilePath);
+						String cheminComplet = cheminServeur.resolve(requestedFile).toString();
+						System.out.println("CHEMIN COMPLET : " + cheminComplet);
+						// prints "CHEMIN COMPLET : C:\bin" instead of C:\Users\honopio\git\serveurJava\bin
 
 						/* requestedFile = la ressource demandée dans le navigateur (par ex, "/bin")
 						 * par contre, ce qui est chargé ds le browser est le contenu de args[1], pas requestedFile
