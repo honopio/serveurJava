@@ -77,8 +77,8 @@ public class AfficheRequetesHttp {
 						System.out.println("REQUESTED FILE : "+ requestedFile);// quand je veux "GET /bin", ça print \bin.
 						//si je mets toAbsolutePath, donne C:\bin au lieu de donner l'adresse à partir du serveur local
 						
-						
-						Path cheminServeur = Paths.get(args[1]).toAbsolutePath(); 
+						/*
+						Path cheminServeur = Paths.get(args[1]).toAbsolutePath().normalize(); 
 						System.out.println("CHEMIN SERVEUR : "+cheminServeur); //pour l'instant c'est args[0] == "."
 						// prints "CHEMIN SERVEUR : C:\Users\honopio\git\serveurJava\."
 						
@@ -91,7 +91,8 @@ public class AfficheRequetesHttp {
 						 * quand on demande "http://localhost:1080/bin", la requête est "GET /bin HTTP/1.1" 
 						 * MAIS on rentre PAS DANS LE IF(directory) 
 						 */
-				
+						
+						
 						// TODO: SI (CHEMIN est un répertoire) ALORS
 						if (Files.isDirectory(Paths.get(requestedFile))) {
 							//dir à partir duquel le serveur envoie des files, combiné au fichier de la requête
