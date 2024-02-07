@@ -15,7 +15,7 @@ public class AfficheRequetesHttp {
 	 * Pour multithreader, il faut surement (thread.start()) à chaque fois que (Socket c = s.accept()) 
 	 * pour fermer la connexion : fermer le socket (c.close()) et tuer le thread. see : https://stackoverflow.com/questions/44989876/simple-java-multi-threaded-socket-application
 	 */
-	public static void main(String[] args) {
+	public static void main(String[] args) throws NoSuchFileException {
 		if (args.length != 2) {
 			System.err.println("Usage: java " + AfficheRequetesHttp.class.getName() + "portnumber directory");
 			System.exit(1);
@@ -96,7 +96,7 @@ public class AfficheRequetesHttp {
 						// TODO: SI (CHEMIN est un répertoire) ALORS
 						if (Files.isDirectory(Paths.get(requestedFile))) {
 							//dir à partir duquel le serveur envoie des files, combiné au fichier de la requête
-							Path chemin = Paths.get(args[1], requestedFile).toAbsolutePath(); 
+							Path chemin = Paths.get(requestedFile); 
 							
 							// reponse affichant le contenu du répertoire
 							
