@@ -73,11 +73,11 @@ public class AfficheRequetesHttp {
 					if (firstline.substring(0, 3).equals("GET")) {
 					
 						// récupérer le chemin dans la première ligne
-						String requestedFile = Paths.get(args[1]).resolve(Paths.get(firstline.split(" ")[1])).normalize().toAbsolutePath().toString();
+						String requestedFile = (firstline.split(" ")[1]);
+						Path requestedFilePath = Paths.get(requestedFile);
 						System.out.println("REQUESTED FILE : "+ requestedFile);// quand je veux "GET /bin", ça print \bin.
-						//si je mets toAbsolutePath, donne C:\bin au lieu de donner l'adresse à partir du serveur local
 						
-						/*
+						
 						Path cheminServeur = Paths.get(args[1]).toAbsolutePath().normalize(); 
 						System.out.println("CHEMIN SERVEUR : "+cheminServeur); //pour l'instant c'est args[0] == "."
 						// prints "CHEMIN SERVEUR : C:\Users\honopio\git\serveurJava\."
@@ -94,9 +94,7 @@ public class AfficheRequetesHttp {
 						
 						
 						// TODO: SI (CHEMIN est un répertoire) ALORS
-						if (Files.isDirectory(Paths.get(requestedFile))) {
-							//dir à partir duquel le serveur envoie des files, combiné au fichier de la requête
-							Path chemin = Paths.get(requestedFile); 
+						if (Files.isDirectory(requestedFilePath)) {
 							
 							// reponse affichant le contenu du répertoire
 							
@@ -114,20 +112,21 @@ public class AfficheRequetesHttp {
 							pw.println("<tr><th valign=\"top\"></th><th><a>Name</a></th><th><a>Last modified</a></th><th><a>Size</a></th></tr>");
 							
 							//obtenir le path du directory parent
-						    Path parent = chemin.getParent();
+						    Path parent = Paths.get(requestedFile).getParent(); 
+						    
 						    System.out.println("PARENT DIRECTORY : "+ parent);
 
 							pw.println("<tr><td valign=\"top\"></td><td><a href=\""+ parent + "\">Parent Directory</a></td>");
 						    pw.println("</tr>");
 						    
 							//afficher tous les fichiers du dir
-							try (DirectoryStream<Path> stream = Files.newDirectoryStream(chemin)) {
+							try (DirectoryStream<Path> stream = Files.newDirectoryStream(requestedFilePath)) {
 								
 							    for (Path file: stream) {
 							    	//classe qui permet d'accéder à des méthodes qui renvoient des attributs de files
 							    	BasicFileAttributes attrs = Files.readAttributes(file, BasicFileAttributes.class);
 							    	
-							    	pw.println("<tr><td valign=\"top\"></td><td><a href=\"" + file.getFileName() + "\">" + file.getFileName() 
+							    	pw.println("<tr><td valign=\"top\"></td><td><a href=\"" + requestedFile.substring(1) + "/" + file.getFileName() + "\">" + file.getFileName() 
 							    	+ "</a><td align=\"right\">"+  attrs.lastModifiedTime().toString() +"</td><td align=\"right\">" + attrs.size() + " bytes" + "</td></td></tr>");
 							    }
 							    
