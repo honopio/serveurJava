@@ -53,8 +53,7 @@ public class AfficheRequetesHttp {
 					Scanner sc = new Scanner(c.getInputStream());
 					System.out.println("----DEBUT REQUETE----");
 					// stocker la premiere ligne pour type de requête
-					
-					//if ferme a la fin. sinon NoSuchElementException levee au bout de quelques secondes pcq le scanner continue a essayer de lire
+					//if ferme a la fin. sinon NoSuchElementException levee au bout de quelques secondes pcq le scanner continue d'essayer de lire
 					if (sc.hasNextLine()) { 
 				        String firstline = sc.nextLine();
 				        System.out.println(firstline);
@@ -86,7 +85,6 @@ public class AfficheRequetesHttp {
 					    } else { //sinon on concatene le chemin de serveurJava avec le chemin de la requete GET
 					        requestedFilePath = Paths.get("").resolve(requestedFile.substring(1));
 					    }
-					    
 		/*TRACE*/		System.out.println("\nREQUESTED FILE : "+ requestedFile);
 
 						// SI (CHEMIN est un répertoire) ALORS
@@ -164,18 +162,16 @@ public class AfficheRequetesHttp {
 						}
 						
 					} //FIN SI(METHODE GET)
-				}//FIN SI (il y a une ligne a lire)
-					// TODO: fermer la connexion. la classe ServerSocket a une methode close(). c.close(); */
-			
-					
-				}//FIN try(accepter la connexion)
+					}//FIN SI (il y a une ligne a lire)
+		
+				}//FIN try(accepter la connexion). 
+				//connexion ouverte dans un try with resources, donc elle est fermee automatiquement ici 
 
 			} //FIN while(true)
 			
 		} catch (IOException e) {
 			System.err.println("IO error: ");
-			e.printStackTrace();
-			
+			e.printStackTrace();	
 		}
 
 	}
