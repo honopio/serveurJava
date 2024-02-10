@@ -53,10 +53,13 @@ public class AfficheRequetesHttp {
 					Scanner sc = new Scanner(c.getInputStream());
 					System.out.println("----DEBUT REQUETE----");
 					// stocker la premiere ligne pour type de requête
-					String firstline = sc.nextLine();
-					System.out.println(firstline);
 					
-					// lire la première ligne sur flux d'entrée
+					//if ferme a la fin. sinon NoSuchElementException levee au bout de quelques secondes pcq le scanner continue a essayer de lire
+					if (sc.hasNextLine()) { 
+				        String firstline = sc.nextLine();
+				        System.out.println(firstline);
+					
+					// lire a partir de la deuxieme ligne sur flux d'entrée
 					while (sc.hasNextLine()) {
 						String line = sc.nextLine();
 						// on sort de la boucle si on arrive sur la ligne vide de fin des headers
@@ -76,17 +79,17 @@ public class AfficheRequetesHttp {
 						// récupérer le chemin dans la première ligne
 						String requestedFile = (firstline.split(" ")[1]);
 						Path requestedFilePath = Paths.get(requestedFile);
-						System.out.println("\nREQUESTED FILE : "+ requestedFile);
 						
-						/* TRACE */
-						Path cheminServeur = Paths.get(args[1]).toAbsolutePath().normalize(); 
-						System.out.println("CHEMIN SERVEUR : "+cheminServeur); 
-						/* TRACE du chemin absolu de la requete GET */
-						String cheminComplet = cheminServeur.resolve(requestedFile).toString();
-						System.out.println("CHEMIN COMPLET : " + cheminComplet);
-						
-						
-						// TODO: SI (CHEMIN est un répertoire) ALORS
+						// "GET /" renvoie le contenu du dir serveurJava
+					    if (requestedFile.equals("/")) {
+					        requestedFilePath = Paths.get("");
+					    } else { //sinon on concatene le chemin de serveurJava avec le chemin de la requete GET
+					        requestedFilePath = Paths.get("").resolve(requestedFile.substring(1));
+					    }
+					    
+		/*TRACE*/		System.out.println("\nREQUESTED FILE : "+ requestedFile);
+
+						// SI (CHEMIN est un répertoire) ALORS
 						if (Files.isDirectory(requestedFilePath)) {
 							
 							// reponse affichant le contenu du répertoire
@@ -103,37 +106,44 @@ public class AfficheRequetesHttp {
 							pw.println("<h1>Index of " + requestedFile + "</h1>");
 							pw.println("<table>");
 							pw.println("<tr><th valign=\"top\"></th><th><a>Name</a></th><th><a>Last modified</a></th><th><a>Size</a></th></tr>");
-							
-							//obtenir le path du directory parent
-						    Path parent = requestedFilePath.getParent();
-						    Path trueParent = parent == null ? requestedFilePath : parent ; //permet de pas essayer de remonter en amont de root
-						    
-						    /*TRACE*/System.out.println("PARENT DIRECTORY : "+ parent + "\n");
-
-							pw.println("<tr><td valign=\"top\"></td><td><a href=\""+ trueParent + "\">Parent Directory</a></td>");
+	
+							//pb : quand on veut remonter au Parent Directory, on remonte directement au dir racine du projet
+							pw.println("<tr><td valign=\"top\"></td><td><a href=\"/../\">Parent Directory</a></td>"); //le href est "/../"
 						    pw.println("</tr>");
 						    
 							//afficher tous les fichiers du dir
 							try (DirectoryStream<Path> stream = Files.newDirectoryStream(requestedFilePath)) {
 								
 							    for (Path file: stream) {
-							    	//classe avec des methodes qui permettent d'accéder à des attributs de files
+							    	//classe avec des methodes pour acceder à des attributs de fichiers
 							    	BasicFileAttributes attrs = Files.readAttributes(file, BasicFileAttributes.class);
 							    	
+							    	//decide si la taille du fichier sera affichee en bits, KB ou MB
+							    	long fileSize = attrs.size();  char format;
+							    	if (fileSize < 1024) {
+							    		format = 'B';
+							    	} else if (fileSize < 1024*1024) {
+							    		fileSize = attrs.size()/1024 ;
+							    		format = 'K';
+							    	} else {
+							    		fileSize = attrs.size()/(1024*1024);
+							    		format = 'M';
+							    	}
+							    	
+							    	//pr chaque fichier, on print son nom (avec un href qui y envoie), sa date de derniere modif et sa taille
 							    	pw.println("<tr><td valign=\"top\"></td><td><a href=\"" + requestedFile.substring(1) + "/" + file.getFileName() + "\">" + file.getFileName() 
-							    	+ "</a><td align=\"right\">"+  attrs.lastModifiedTime().toString() +"</td><td align=\"right\">" + attrs.size() + " bytes" + "</td></td></tr>");
+							    	+ "</a><td align=\"right\">"+  attrs.lastModifiedTime().toString() +"</td><td align=\"right\">" + fileSize + format + "</td></td></tr>");
 							    }
 							    
 							pw.println("</table>");    
 							pw.println("</body></html>");
 							pw.flush(); // il faut vider le buffer pour que le contenu soit envoyé.
 							}
-						}/*
-						// TODO: SINON SI (CHEMIN est un fichier)
-						else if (Files.isRegularFile(chemin)) {
-							// construire réponse avec le contenu du fichier
-							// exemple d'envoi de fichier
-							String mimeType = Files.probeContentType(chemin);
+						}
+						//SINON SI (CHEMIN est un fichier)
+						else if (Files.isRegularFile(requestedFilePath)) {
+					
+							String mimeType = Files.probeContentType(requestedFilePath);
 							// Infos sur types MIME = https://developer.mozilla.org/fr/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types
 							Writer w = new OutputStreamWriter(os);
 							PrintWriter pw = new PrintWriter(w);
@@ -143,24 +153,25 @@ public class AfficheRequetesHttp {
 							pw.flush();// il faut vider le buffer pour que le contenu soit envoyé. envoie à OutputStream os je crois
 		
 							// Copier le contenu d'un ficher vers un flux en sortie
-							Files.copy(chemin, os); // ici pas besoin de vider le buffer os n'est pas buffeurisé
-						}*/
+							Files.copy(requestedFilePath, os); // ici pas besoin de vider le buffer os n'est pas buffeurisé
+						}
 						else {
-						// TODO: SINON
-							// envoyer erreur 404
+						//SINON (envoyer erreur 404)
 							Writer w = new OutputStreamWriter(os);
 							PrintWriter pw = new PrintWriter(w);
 							pw.println("HTTP/1.1 404 DEAD");
 							pw.flush(); // il faut vider le buffer pour que le contenu soit envoyé.
 						}
-						// FIN SI
-					}
+						
+					} //FIN SI(METHODE GET)
+				}//FIN SI (il y a une ligne a lire)
 					// TODO: fermer la connexion. la classe ServerSocket a une methode close(). c.close(); */
-					// FIN TANT QUE
+			
 					
-				}
+				}//FIN try(accepter la connexion)
 
-			}
+			} //FIN while(true)
+			
 		} catch (IOException e) {
 			System.err.println("IO error: ");
 			e.printStackTrace();
