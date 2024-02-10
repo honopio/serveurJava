@@ -78,7 +78,7 @@ public class AfficheRequetesHttp {
 						// récupérer le chemin dans la première ligne
 						String requestedFile = (firstline.split(" ")[1]);
 						Path requestedFilePath = Paths.get(requestedFile);
-						
+												
 						// "GET /" renvoie le contenu du dir serveurJava
 					    if (requestedFile.equals("/")) {
 					        requestedFilePath = Paths.get("");
@@ -104,9 +104,20 @@ public class AfficheRequetesHttp {
 							pw.println("<h1>Index of " + requestedFile + "</h1>");
 							pw.println("<table>");
 							pw.println("<tr><th valign=\"top\"></th><th><a>Name</a></th><th><a>Last modified</a></th><th><a>Size</a></th></tr>");
+							
+							// Récupération de l'adresse du Parent Directory
+							String ParentRequestedFile = "";
+							int derniersSlash = requestedFile.lastIndexOf('/'); // Trouver le dernier '/'
+							if (derniersSlash != -1) { // Si / est trouvé
+							    ParentRequestedFile = requestedFile.substring(0, derniersSlash);
+         /*TRACE*/			System.out.println(derniersSlash);							
+							} else
+								ParentRequestedFile = requestedFile;
+
 	
-							//pb : quand on veut remonter au Parent Directory, on remonte directement au dir racine du projet
-							pw.println("<tr><td valign=\"top\"></td><td><a href=\"/../\">Parent Directory</a></td>"); //le href est "/../"
+							//pb : quand on veut remonter au Parent Directory, on remonte directement au dir racine du projet.
+							//pb v2: maintenant on remonte au Parent Directory mais pas au dessus.
+							pw.println("<tr><td valign=\"top\"></td><td><a href=\"" + ParentRequestedFile + "\">Parent Directory</a></td>"); //le href est "/../"
 						    pw.println("</tr>");
 						    
 							//afficher tous les fichiers du dir
