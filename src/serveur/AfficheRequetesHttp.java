@@ -108,7 +108,9 @@ public class AfficheRequetesHttp {
 							// Récupération de l'adresse du Parent Directory
 							String ParentRequestedFile = "";
 							int derniersSlash = requestedFile.lastIndexOf('/'); // Trouver le dernier '/'
-							if (derniersSlash != -1) { // Si / est trouvé
+							if (derniersSlash == requestedFile.indexOf('/')) { //s'il y a un seul slash dans le chemin -> on veut remonter au dir racine
+								ParentRequestedFile = requestedFile.substring(0, derniersSlash+1); //on inclut le slash dans le chemin
+							} else if (derniersSlash != -1) { // Si / est trouvé
 							    ParentRequestedFile = requestedFile.substring(0, derniersSlash);
          /*TRACE*/			System.out.println(derniersSlash);							
 							} else
