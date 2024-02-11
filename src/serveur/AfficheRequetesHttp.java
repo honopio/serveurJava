@@ -90,7 +90,6 @@ public class AfficheRequetesHttp {
 						if (Files.isDirectory(requestedFilePath)) {
 							
 							// reponse affichant le contenu du répertoire
-							
 							Writer w = new OutputStreamWriter(os);
 							PrintWriter pw = new PrintWriter(w);
 							pw.println("HTTP/1.1 200 OK");
@@ -107,17 +106,14 @@ public class AfficheRequetesHttp {
 							// Récupération de l'adresse du Parent Directory
 							String ParentRequestedFile = "";
 							int derniersSlash = requestedFile.lastIndexOf('/'); // Trouver le dernier '/'
-							if (derniersSlash == requestedFile.indexOf('/')) { //s'il y a un seul slash dans le chemin -> on veut remonter au dir racine
+							if (derniersSlash == requestedFile.indexOf('/')) { //s'il y a un seul slash dans le chemin -> le Parent Directory est le dir racine
 								ParentRequestedFile = requestedFile.substring(0, derniersSlash+1); //on inclut le slash dans le chemin
 							} else if (derniersSlash != -1) { // Si / est trouvé
 							    ParentRequestedFile = requestedFile.substring(0, derniersSlash);
-         /*TRACE*/			System.out.println(derniersSlash);							
 							} else
 								ParentRequestedFile = requestedFile;
-
-	
 							// Lien pour remonter au Parent Directory
-							pw.println("<tr><td valign=\"top\"></td><td><a href=\"" + ParentRequestedFile + "\">Parent Directory</a></td>"); //le href est "/../"
+							pw.println("<tr><td valign=\"top\"></td><td><a href=\"" + ParentRequestedFile + "\">Parent Directory</a></td>"); 
 						    pw.println("</tr>");
 						    
 							//afficher tous les fichiers du dir
@@ -143,7 +139,6 @@ public class AfficheRequetesHttp {
 							    	//pr chaque fichier, on print son nom (avec un href qui y envoie), sa date de derniere modif et sa taille
 							    	pw.println("<tr><td valign=\"top\"></td><td><a href=\"" + requestedFile + slashOptionnel + file.getFileName() + "\">" + file.getFileName() 
 							    	+ "</a><td align=\"right\">"+  attrs.lastModifiedTime().toString() +"</td><td align=\"right\">" + fileSize + format + "</td></td></tr>");
-							    	System.out.println(requestedFile + "/" + file.getFileName() );
 							    }
 							    
 							pw.println("</table>");    
@@ -171,15 +166,16 @@ public class AfficheRequetesHttp {
 							Writer w = new OutputStreamWriter(os);
 							PrintWriter pw = new PrintWriter(w);
 							pw.println("HTTP/1.1 404 DEAD");
+							pw.println("Content-Type: text/plain");
+							pw.println(); // ligne vide pr signifier la fin du header
+							pw.println("La ressource n'existe pas");
 							pw.flush(); // il faut vider le buffer pour que le contenu soit envoyé.
 						}
 						
 					} //FIN SI(METHODE GET)
-					}//FIN SI (il y a une ligne a lire)
+					}//FIN si(il y a une ligne a lire)
 		
 				}//FIN try(accepter la connexion). 
-				//connexion ouverte dans un try with resources, donc elle est fermee automatiquement ici 
-
 			} //FIN while(true)
 			
 		} catch (IOException e) {
