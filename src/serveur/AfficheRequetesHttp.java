@@ -8,13 +8,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Scanner;
 
 public class AfficheRequetesHttp {
-	
-	// TODO: multithreader le serveur pour que chaque requête soit traitée dans un thread différent
 
-	 /* Pour multithreader, il faut surement (thread.start()) à chaque fois que (Socket c = s.accept()) 
-	  * pour fermer la connexion : fermer le socket (c.close()) et tuer le thread. see : https://stackoverflow.com/questions/44989876/simple-java-multi-threaded-socket-application
-	  */
-	
 	public static void main(String[] args) throws NoSuchFileException {
 		if (args.length != 2) {
 			System.err.println("Usage: java " + AfficheRequetesHttp.class.getName() + "portnumber directory");
@@ -144,10 +138,12 @@ public class AfficheRequetesHttp {
 							    		fileSize = attrs.size()/(1024*1024);
 							    		format = 'M';
 							    	}
-							    	
+							    	//si la methode est "GET /", il faut pas y concatener un autre /
+							    	String slashOptionnel = requestedFile.equals("/") ? "" : "/";
 							    	//pr chaque fichier, on print son nom (avec un href qui y envoie), sa date de derniere modif et sa taille
-							    	pw.println("<tr><td valign=\"top\"></td><td><a href=\"" + requestedFile.substring(1) + "/" + file.getFileName() + "\">" + file.getFileName() 
+							    	pw.println("<tr><td valign=\"top\"></td><td><a href=\"" + requestedFile + slashOptionnel + file.getFileName() + "\">" + file.getFileName() 
 							    	+ "</a><td align=\"right\">"+  attrs.lastModifiedTime().toString() +"</td><td align=\"right\">" + fileSize + format + "</td></td></tr>");
+							    	System.out.println(requestedFile + "/" + file.getFileName() );
 							    }
 							    
 							pw.println("</table>");    
