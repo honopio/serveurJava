@@ -84,6 +84,11 @@ public class AfficheRequetesHttp {
 					        requestedFilePath = Paths.get("");
 					    } else { //sinon on concatene le chemin de serveurJava avec le chemin de la requete GET
 					        requestedFilePath = Paths.get("").resolve(requestedFile.substring(1));
+					        
+// Tentative de correction pour le // lorsque l'on navigue dans l'arborescence apres avoir entre une adresse se terminant en /
+//					        if (requestedFile.charAt(requestedFile.length() - 1) == '/') {
+//					        	requestedFilePath = Paths.get("").resolve(requestedFile.substring(1, requestedFile.length() - 1));
+//					        }
 					    }
 		/*TRACE*/		System.out.println("\nREQUESTED FILE : "+ requestedFile);
 
@@ -117,8 +122,7 @@ public class AfficheRequetesHttp {
 								ParentRequestedFile = requestedFile;
 
 	
-							//pb : quand on veut remonter au Parent Directory, on remonte directement au dir racine du projet.
-							//pb v2: maintenant on remonte au Parent Directory mais pas au dessus.
+							// Lien pour remonter au Parent Directory
 							pw.println("<tr><td valign=\"top\"></td><td><a href=\"" + ParentRequestedFile + "\">Parent Directory</a></td>"); //le href est "/../"
 						    pw.println("</tr>");
 						    
