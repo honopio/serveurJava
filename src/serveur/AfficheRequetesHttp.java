@@ -10,9 +10,11 @@ import java.util.Scanner;
 public class AfficheRequetesHttp implements Runnable {
 	
 	private Socket c ;
+	private String DossierRoot;
 
-	public AfficheRequetesHttp(Socket c) {
+	public AfficheRequetesHttp(Socket c, String d) {
         this.c = c;
+        DossierRoot = d;
     }
 	
 	public static void main(String[] args) throws NoSuchFileException {
@@ -34,7 +36,7 @@ public class AfficheRequetesHttp implements Runnable {
 			while (true) {
 				Socket c = s.accept(); //Pas dans un try with resources, sinon la socket se ferme avant de pouvoir faire une requete
 				System.out.println("nouveau client connecté : " + c.getInetAddress().getHostAddress()); 
-				Thread t = new Thread(new AfficheRequetesHttp(c));
+				Thread t = new Thread(new AfficheRequetesHttp(c, args[0]));
 				t.start();
 			} 
 		
@@ -77,9 +79,9 @@ public class AfficheRequetesHttp implements Runnable {
 			
 			// "GET /" renvoie le contenu du dir serveurJava
 		    if (requestedFile.equals("/")) {
-		        requestedFilePath = Paths.get("");
+		        requestedFilePath = Paths.get(DossierRoot);
 		    } else { //sinon on concatene le chemin de serveurJava avec le chemin de la requete GET
-		        requestedFilePath = Paths.get("").resolve(requestedFile.substring(1));
+		        requestedFilePath = Paths.get(DossierRoot).resolve(requestedFile.substring(1));
 		    }
 /*TRACE*/		System.out.println("\nREQUESTED FILE : "+ requestedFile);
 
