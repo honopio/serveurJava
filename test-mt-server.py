@@ -12,7 +12,13 @@ def connect_to_server(index):
             s.connect((SERVER_ADDRESS, SERVER_PORT))
             request = f"GET /video.mp4 HTTP/1.1\r\nHost: {SERVER_ADDRESS}\r\n\r\n"
             s.send(request.encode())
-            response = s.recv(1024)  # receive a small part of the response to confirm it's underway
+            # Initialize a variable to store the received data
+            received_data = b''
+            while True:
+                data = s.recv(4096)  # Adjust buffer size as needed
+                if not data:
+                    break  # Exit the loop if no more data is received
+                received_data += data
             print(f"Connection {index}: Request sent, received initial response")
     except Exception as e:
         print(f"Connection {index}: Failed with {e}")
