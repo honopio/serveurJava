@@ -70,10 +70,9 @@ public class AfficheRequetesHttp implements Runnable {
 		if (firstline.substring(0, 3).equals("GET")) {
 		
 			// récupérer le chemin dans la première ligne
-			//REMETTRE LE SPLIT SI CA MARCHE PAS
-			int begin = firstline.indexOf(' ')+1;
+			int begin = firstline.indexOf(' ') + 1;
 			int end = firstline.indexOf(' ', begin);
-			String requestedFile = (firstline.substring(begin +1, end));
+			String requestedFile = (firstline.substring(begin, end));
 			Path requestedFilePath = Paths.get(requestedFile);
 			
 			// "GET /" renvoie le contenu du dir serveurJava
@@ -109,8 +108,6 @@ public class AfficheRequetesHttp implements Runnable {
 				} else if (derniersSlash != -1) { // Si '/' est trouvé et qu'il y en a plusieurs dans le chemin
 				    ParentRequestedFile = requestedFile.substring(0, derniersSlash); //on n'inclut pas le dernier '/' dans le chemin
 				}
-	//			} else
-		//			ParentRequestedFile = requestedFile;
 				
 				// Lien pour remonter au Parent Directory
 				pw.println("<tr><td valign=\"top\"></td><td><a href=\"" + ParentRequestedFile + "\">Parent Directory</a></td>"); 			    pw.println("</tr>");
