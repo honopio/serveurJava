@@ -30,14 +30,14 @@ public class AfficheRequetesHttp implements Runnable {
 		}
 		// écouter sur port portNumber
 		try (ServerSocket s = new ServerSocket(portNumber);) {
-			// TANT QUE (vrai) FAIRE
+
 			while (true) {
 				Socket c = s.accept(); //Pas dans un try with resources, sinon la socket se ferme avant de pouvoir faire une requete
 				System.out.println("nouveau client connecté : " + c.getInetAddress().getHostAddress()); 
 				Thread t = new Thread(new AfficheRequetesHttp(c));
 				t.start();
 			} 
-			
+		
 		} catch (IOException e) {
 			System.err.println("IO error avec le ServerSocket : ");
 			e.printStackTrace();	
@@ -70,7 +70,10 @@ public class AfficheRequetesHttp implements Runnable {
 		if (firstline.substring(0, 3).equals("GET")) {
 		
 			// récupérer le chemin dans la première ligne
-			String requestedFile = (firstline.split(" ")[1]);
+			//REMETTRE LE SPLIT SI CA MARCHE PAS
+			int begin = firstline.indexOf(' ')+1;
+			int end = firstline.indexOf(' ', begin);
+			String requestedFile = (firstline.substring(begin +1, end));
 			Path requestedFilePath = Paths.get(requestedFile);
 			
 			// "GET /" renvoie le contenu du dir serveurJava
@@ -102,11 +105,12 @@ public class AfficheRequetesHttp implements Runnable {
 				String ParentRequestedFile = "";
 				int derniersSlash = requestedFile.lastIndexOf('/'); // Trouver le dernier '/'
 				if (derniersSlash == requestedFile.indexOf('/')) { //s'il y a un seul slash dans le chemin -> le Parent Directory est le dir racine
-					ParentRequestedFile = requestedFile.substring(0, derniersSlash+1); //on inclut le slash dans le chemin
-				} else if (derniersSlash != -1) { // Si / est trouvé et il y en a plusieurs dans le chemin
-				    ParentRequestedFile = requestedFile.substring(0, derniersSlash);
-				} else
-					ParentRequestedFile = requestedFile;
+					ParentRequestedFile = requestedFile.substring(0, derniersSlash+1); //on inclut le '/' dans le chemin
+				} else if (derniersSlash != -1) { // Si '/' est trouvé et qu'il y en a plusieurs dans le chemin
+				    ParentRequestedFile = requestedFile.substring(0, derniersSlash); //on n'inclut pas le dernier '/' dans le chemin
+				}
+	//			} else
+		//			ParentRequestedFile = requestedFile;
 				
 				// Lien pour remonter au Parent Directory
 				pw.println("<tr><td valign=\"top\"></td><td><a href=\"" + ParentRequestedFile + "\">Parent Directory</a></td>"); 			    pw.println("</tr>");
@@ -170,7 +174,7 @@ public class AfficheRequetesHttp implements Runnable {
 			
 		} //FIN SI(METHODE GET)
 		}//FIN SI(il y a une ligne a lire)
-		
+		c.close();
 		} catch (IOException e) {
 			System.err.println("IO problem");
 			e.printStackTrace();
