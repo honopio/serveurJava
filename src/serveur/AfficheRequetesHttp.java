@@ -10,11 +10,7 @@ import java.util.Scanner;
 public class AfficheRequetesHttp implements Runnable {
 	
 	private Socket c ;
-	
-	// TODO: multithreader le serveur pour que chaque requête soit traitée dans un thread différent
-	 /* Pour multithreader, il faut surement (thread.start()) à chaque fois que (Socket c = s.accept()) 
-	  * pour fermer la connexion : fermer le socket (c.close()) et tuer le thread. see : https://stackoverflow.com/questions/44989876/simple-java-multi-threaded-socket-application */
-	
+
 	public AfficheRequetesHttp(Socket c) {
         this.c = c;
     }
@@ -50,13 +46,11 @@ public class AfficheRequetesHttp implements Runnable {
 
 	@Override
 	public void run() {
-		// récupérer flux d'entrée
 		try (Scanner sc = new Scanner(c.getInputStream());
 				OutputStream os = c.getOutputStream();) { 
 	
 		System.out.println("----DEBUT REQUETE----");
 		// stocker la premiere ligne pour type de requête
-		//if fermé a la fin. sinon NoSuchElementException levee au bout de quelques secondes pcq le scanner continue d'essayer de lire
 		if (sc.hasNextLine()) { 
 	        String firstline = sc.nextLine();
 	        System.out.println(firstline);
@@ -91,7 +85,6 @@ public class AfficheRequetesHttp implements Runnable {
 			if (Files.isDirectory(requestedFilePath)) {
 				
 				// reponse affichant le contenu du répertoire
-				
 				Writer w = new OutputStreamWriter(os);
 				PrintWriter pw = new PrintWriter(w);
 				pw.println("HTTP/1.1 200 OK");
@@ -105,9 +98,18 @@ public class AfficheRequetesHttp implements Runnable {
 				pw.println("<table>");
 				pw.println("<tr><th valign=\"top\"></th><th><a>Name</a></th><th><a>Last modified</a></th><th><a>Size</a></th></tr>");
 
-				//pb : quand on veut remonter au Parent Directory, on remonte directement au dir racine du projet
-				pw.println("<tr><td valign=\"top\"></td><td><a href=\"/../\">Parent Directory</a></td>"); //le href est "/../"
-			    pw.println("</tr>");
+				// Récupération de l'adresse du Parent Directory
+				String ParentRequestedFile = "";
+				int derniersSlash = requestedFile.lastIndexOf('/'); // Trouver le dernier '/'
+				if (derniersSlash == requestedFile.indexOf('/')) { //s'il y a un seul slash dans le chemin -> le Parent Directory est le dir racine
+					ParentRequestedFile = requestedFile.substring(0, derniersSlash+1); //on inclut le slash dans le chemin
+				} else if (derniersSlash != -1) { // Si / est trouvé et il y en a plusieurs dans le chemin
+				    ParentRequestedFile = requestedFile.substring(0, derniersSlash);
+				} else
+					ParentRequestedFile = requestedFile;
+				
+				// Lien pour remonter au Parent Directory
+				pw.println("<tr><td valign=\"top\"></td><td><a href=\"" + ParentRequestedFile + "\">Parent Directory</a></td>"); 			    pw.println("</tr>");
 			    
 				//afficher tous les fichiers du dir
 				try (DirectoryStream<Path> stream = Files.newDirectoryStream(requestedFilePath)) {
@@ -128,10 +130,12 @@ public class AfficheRequetesHttp implements Runnable {
 				    		format = 'M';
 				    	}
 				    	
+				    	//si le chemin finit par '/', il ne faut pas y concatener un autre /
+				    	String slashOptionnel = requestedFile.endsWith("/") ? "" : "/";
 				    	//pr chaque fichier, on print son nom (avec un href qui y envoie), sa date de derniere modif et sa taille
-				    	pw.println("<tr><td valign=\"top\"></td><td><a href=\"" + requestedFile.substring(1) + "/" + file.getFileName() + "\">" + file.getFileName() 
+				    	pw.println("<tr><td valign=\"top\"></td><td><a href=\"" + requestedFile + slashOptionnel + file.getFileName() + "\">" + file.getFileName() 
 				    	+ "</a><td align=\"right\">"+  attrs.lastModifiedTime().toString() +"</td><td align=\"right\">" + fileSize + format + "</td></td></tr>");
-				    }
+				    	}
 				    
 				pw.println("</table>");    
 				pw.println("</body></html>");
@@ -158,6 +162,9 @@ public class AfficheRequetesHttp implements Runnable {
 				Writer w = new OutputStreamWriter(os);
 				PrintWriter pw = new PrintWriter(w);
 				pw.println("HTTP/1.1 404 DEAD");
+				pw.println("Content-Type: text/plain");
+				pw.println(); // ligne vide pr signifier la fin du header
+				pw.println("La ressource n'existe pas");
 				pw.flush(); // il faut vider le buffer pour que le contenu soit envoyé.
 			}
 			
