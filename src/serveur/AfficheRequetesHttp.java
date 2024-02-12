@@ -36,7 +36,8 @@ public class AfficheRequetesHttp implements Runnable {
 			while (true) {
 				Socket c = s.accept(); //Pas dans un try with resources, sinon la socket se ferme avant de pouvoir faire une requete
 				System.out.println("nouveau client connecté : " + c.getInetAddress().getHostAddress()); 
-				Thread t = new Thread(new AfficheRequetesHttp(c, args[0]));
+				Thread t = new Thread(new AfficheRequetesHttp(c, args[1]));
+				System.out.println("args[0] : " + args[1]); // TRACE ARGS0
 				t.start();
 			} 
 		
@@ -67,6 +68,8 @@ public class AfficheRequetesHttp implements Runnable {
 			System.out.println("-" + line + "-");
 		}
 		System.out.println("----FIN REQUETE----");
+		System.out.println("DossierRoot : " + DossierRoot); // TRACE DossierRoot
+
 			
 		// SI (méthode get) ALORS
 		if (firstline.substring(0, 3).equals("GET")) {
